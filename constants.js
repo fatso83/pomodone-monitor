@@ -1,0 +1,5 @@
+module.exports = {
+  STOPPED: "STOPPED",
+  STARTED: "STARTED",
+  SOON_FINISHED: "SOON_FINISHED"
+};
