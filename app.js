@@ -3,27 +3,33 @@
 "use strict";
 /**
  * Program to launch actions when Pomodone starts and stops tasks
- * - restricted to Wunderlist actions for now, as
- *   different task types lack a bit of the required information
  *
  * How:
- * - Pomodone desktop app syncs WunderList issues
+ * - Pomodone desktop app syncs issues to the cloud
  * - When starting/stopping an issue an event is sent to Zapier from the Pomodone cloud service
  * - The Zapier service then creates a new entry in the RSS feed(s)
  * - This program listens to these events and launches new actions
  *
+ * Example format: https://zapier.com/engine/rss/172084/pomodoro-v1-test1;
  */
 const debug = require("debug")("main");
 const assert = require("assert");
 const { parseString } = require("xml2js");
 const fs = require("fs");
 const request = require("request");
-const commonUrl = "https://zapier.com/engine/rss/172084/pomodoro-";
 const actions = require("./actions");
-const rss = `${commonUrl}v1-test1`;
 const _ = require("lodash");
 const constants = require("./constants");
 const checkInterval = 5;
+
+const rss = process.argv[2];
+
+if (!rss) {
+  console.error(
+    "Please provide a Zapier RSS feed to listen to! Example: https://zapier.com/engine/rss/172084/pomodoro-v1-test1"
+  );
+  process.exit(1);
+}
 
 /**
  * @param event
