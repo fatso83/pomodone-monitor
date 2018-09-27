@@ -1,23 +1,25 @@
 # pomodone-monitor
 Monitor Pomodone changes using Zapier RSS feeds
 
-## This personal project is using harcoded urls
-This is a personal project that I just open-source to help others.
-I haven't added a proper cli to make it configurable, nor have I documented
-the data format for my RSS feed. You can just inspect it 
-manually to see how it looks and duplicate it.
+## Usage
+You need a feed that corresponds to the [expected format](https://zapier.com/engine/rss/172084/pomodoro-v1-test1). 
+To create this you need to set up a Zapier trigger for Pomodone that will add entries to the RSS
+when tasks are started and stopped.
 
-Feel free to drop me a note here or on Twitter (@kopseng)
+Supply the Zapier feed URL as the first parameter and just let it run
+```
+pomodone-monitor https://zapier.com/engine/rss/172084/pomodoro-v1-test1
+```
+This will start and stop the Luxafor lights as you do your Pomodoros.
 
 
-### Linux device permissions
+## Data format
+See the [example feed](https://zapier.com/engine/rss/172084/pomodoro-v1-test1)
+
+
+## Linux device permissions
 
 Make the device writeable for everyone on your system to avoid needing `sudo`.
-
-Luxafor details:
-product id = 0xf372
-vendor id = 0x04d8
-
 
 ```
 echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="f372", MODE="0666"' | sudo tee /etc/udev/rules.d/80-luxafor.rules
