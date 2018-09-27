@@ -20,17 +20,27 @@ const commonUrl = "https://zapier.com/engine/rss/172084/pomodoro-";
 const actions = require("./actions");
 const rss = `${commonUrl}v1-test1`;
 const _ = require("lodash");
-const state = require("./constants");
+const constants = require("./constants");
 const checkInterval = 5;
 
+/**
+ * @param event
+ * @param event.type
+ *
+ * The event might have several type-specific props as well!
+ */
+function publish(event) {
+  _.forEach(actions, handler => handler(event));
+}
+
 async function main() {
-  let currentState = state.STOPPED;
+  let currentState = constants.STOPPED;
   let ongoingTask;
 
   function stateChange(newState, event, feed) {
     debug("State changed. New state:", newState, "Old state", currentState);
     currentState = newState;
-    _.forEach(actions, action => action(newState, event, feed));
+    publish({ type: "statechange", newState });
   }
 
   async function mainLoop() {
@@ -54,7 +64,8 @@ async function main() {
 
     const ongoing = trigger_type === "started";
 
-    if (ongoing && currentState === state.STOPPED) {
+    debug("currentState", currentState, "task running?", ongoing);
+    if (ongoing && currentState === constants.STOPPED) {
       // when the action_date is set to the epoch, it's basically unset
       const finishedBy =
         (action_date_millis || new Date().getTime()) +
@@ -62,15 +73,15 @@ async function main() {
       ongoingTask = { ...lastAdded, finishedBy };
 
       soonTimer = setTimeout(
-        () => stateChange(state.SOON_FINISHED, { finishedBy }),
+        () => publish({ type: constants.SOON_FINISHED, finishedBy }),
         (duration_minutes - 2) * 60 * 1000
       );
-      stateChange(state.STARTED, lastAdded, feed);
-    } else if (!ongoing && currentState === state.STARTED) {
+      stateChange(constants.STARTED, lastAdded, feed);
+    } else if (!ongoing && currentState === constants.STARTED) {
       ongoingTask = null;
       clearTimeout(soonTimer);
 
-      stateChange(state.STOPPED, lastAdded, feed);
+      stateChange(constants.STOPPED, lastAdded, feed);
     }
 
     if (ongoing) {
@@ -79,7 +90,7 @@ async function main() {
           new Date(ongoingTask.finishedBy)
       );
     } else {
-      debug("No current tasks");
+      debug("No current tasks", new Date());
     }
 
     setTimeout(mainLoop, 5 * 1000);
