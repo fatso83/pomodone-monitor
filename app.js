@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 "use strict";
 /**
  * Program to launch actions when Pomodone starts and stops tasks
