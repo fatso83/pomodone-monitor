@@ -1,5 +1,5 @@
 # pomodone-monitor
-Monitor Pomodone changes using Zapier RSS feeds
+> Monitor Pomodone changes using Zapier RSS feeds and trigger Luxafor lights
 
 ## Usage
 You need a feed that corresponds to the [expected format](https://zapier.com/engine/rss/172084/pomodoro-v1-test1). 
@@ -11,6 +11,8 @@ Supply the Zapier feed URL as the first parameter and just let it run
 pomodone-monitor https://zapier.com/engine/rss/172084/pomodoro-v1-test1
 ```
 This will start and stop the Luxafor lights as you do your Pomodoros.
+
+Pass `export DEBUG="*"` to debug the app
 
 
 ## Data format
