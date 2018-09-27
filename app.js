@@ -34,7 +34,7 @@ async function main() {
   }
 
   async function mainLoop() {
-    let timer;
+    let soonTimer;
     const feed = await getFeed();
 
     if (!feed.items.length) {
@@ -61,9 +61,14 @@ async function main() {
         duration_minutes * 60 * 1000;
       ongoingTask = { ...lastAdded, finishedBy };
 
+      soonTimer = setTimeout(
+        () => stateChange(state.SOON_FINISHED, { finishedBy }),
+        (duration_minutes - 2) * 60 * 1000
+      );
       stateChange(state.STARTED, lastAdded, feed);
     } else if (!ongoing && currentState === state.STARTED) {
       ongoingTask = null;
+      clearTimeout(soonTimer);
 
       stateChange(state.STOPPED, lastAdded, feed);
     }
@@ -77,7 +82,7 @@ async function main() {
       debug("No current tasks");
     }
 
-    timer = setTimeout(mainLoop, 5 * 1000);
+    setTimeout(mainLoop, 5 * 1000);
   }
 
   mainLoop();

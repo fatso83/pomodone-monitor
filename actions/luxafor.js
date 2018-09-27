@@ -1,37 +1,62 @@
-const Luxafor = require("luxafor-api");
-const { STARTED, STOPPED } = require("../constants");
+const Luxafor = require("luxafor")();
+const { STARTED, STOPPED, SOON_FINISHED } = require("../constants");
 const debug = require("debug")("luxafor");
 
-let opts = {
-  defaults: {
-    wave: {
-      type: 2,
-      speed: 90,
-      repeat: 5
-    }
-  }
-};
-//const device = new Luxafor(opts); // fails due to poor error handling
-const device = new Luxafor();
+debug("Luxafor module initializing");
 
-const colors = {
-  red: "#F00",
-  green: "#0F0",
-  blue: "#00F",
-  cyan: "#0FF",
-  magenta: "#F0F",
-  yellow: "#FF0",
-  white: "#FFF"
-};
+function isRgb(color) {
+  if (typeof color !== "string") return false;
+  return color.match(/^\d+,\d+,\d+$/);
+}
+
+function getRgb(color) {
+  return color.split(",").map(n => parseInt(n, 10));
+}
+
+function setColor(color) {
+  debug("setting color called");
+  Luxafor.init(function() {
+    debug("init function finished successfully");
+    if (isRgb(color)) {
+      const [r, g, b] = getRgb(color);
+      Luxafor.setColor(r, g, b, function() {
+        debug(`Set rgb color to ${color}`);
+      });
+    } else {
+      Luxafor.setLuxaforColor(Luxafor.colors[color], function() {
+        debug(`Set luxafor color to ${color}`);
+      });
+    }
+  });
+}
+
+function blinkRgbColor(color) {
+  debug("blink rgb color called");
+  Luxafor.init(function() {
+    debug("init function finished successfully");
+    const [r, g, b] = getRgb(color);
+    Luxafor.flashColor(r, g, b, function() {
+      debug("Blinking set");
+    });
+  });
+}
 
 module.exports = function(state, event, feed) {
   if (state === STARTED) {
     debug("Setting new color");
-    device.setColor(colors.magenta);
+    setColor("magenta");
   } else if (state === STOPPED) {
-    device.setColor(colors.red);
+    setColor("green");
     setTimeout(function() {
-      device.off();
+      debug("Turning device off");
+    }, 2000);
+    setColor("off");
+  } else if (state === SOON_FINISHED) {
+    debug("Soon finished");
+    const yellowRgb = "255,255,0";
+    blinkRgbColor(yellowRgb);
+    setTimeout(function() {
+      setColor(Luxafor.colors.red);
     }, 2000);
   }
 };
