@@ -119,6 +119,16 @@ function getParsedFeed(url) {
       }
 
       parseString(body, (err, result) => {
+        if (err) {
+          console.warn(err.message);
+          return;
+        }
+
+        if (!result.rss) {
+          console.warn("Got no RSS!");
+          return;
+        }
+
         const channel = result.rss.channel[0];
         const items = channel.item;
         const href = channel["atom:link"][0]["$"]["href"];
