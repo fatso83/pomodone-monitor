@@ -4,6 +4,11 @@ const { STARTED, STOPPED, SOON_FINISHED } = require("../constants");
 const debug = require("debug")("luxafor");
 
 debug("Luxafor module initializing");
+turnOff();
+
+function turnOff() {
+  setColor("off");
+}
 
 function isRgb(color) {
   if (typeof color !== "string") return false;

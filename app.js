@@ -72,7 +72,6 @@ async function main() {
 
     const ongoing = trigger_type === "started";
 
-    debug("currentState", currentState, "task running?", ongoing);
     if (ongoing && currentState === constants.STOPPED) {
       // when the action_date is set to the epoch, it's basically unset
       const finishedBy =
