@@ -53,7 +53,14 @@ async function main() {
 
   async function mainLoop() {
     let soonTimer;
-    const feed = await getFeed();
+    let feed;
+
+    try {
+      feed = await getFeed();
+    } catch (err) {
+      console.warn("Some error happened while fetching the feed:" + err);
+      return;
+    }
 
     if (!feed.items.length) {
       debug(
@@ -100,7 +107,13 @@ async function main() {
       debug("No current tasks", new Date());
     }
 
-    setTimeout(mainLoop, 5 * 1000);
+    setTimeout(async () => {
+      try {
+        mainLoop();
+      } catch (err) {
+        console.log(err);
+      }
+    }, 5 * 1000);
   }
 
   mainLoop();
@@ -119,13 +132,11 @@ function getParsedFeed(url) {
 
       parseString(body, (err, result) => {
         if (err) {
-          console.warn(err.message);
-          return;
+          return Promise.reject(err.message);
         }
 
         if (!result.rss) {
-          console.warn("Got no RSS!");
-          return;
+          return Promise.reject("Got no RSS!");
         }
 
         const channel = result.rss.channel[0];
@@ -170,4 +181,4 @@ function transformEvent(event) {
   };
 }
 
-main();
+main().catch(() => console.error("Main function crashed?"));
