@@ -28,4 +28,33 @@ echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="f372", MODE=
 sudo udevadm control --reload-rules
 ```
 
+## Linux: Adding it to startup
 
+Put this in `/etc/rc.local` and make the script executable.
+
+```
+#!/bin/bash
+
+# Start a monitor of Pomodone tasks
+RSS="<your feed url here>"
+DEBUG=* pomodone-monitor $RSS > /tmp/root-pomodone-monitor.log 2>&1 &
+
+exit 0
+```
+
+You can debug by checking the content of `/tmp/root-pomodone-monitor.log` and/or
+using 
+
+```
+# systemctl status rc-local
+● rc-local.service - /etc/rc.local Compatibility
+   Loaded: loaded (/lib/systemd/system/rc-local.service; static; vendor preset: enabled)
+  Drop-In: /lib/systemd/system/rc-local.service.d
+           └─debian.conf
+   Active: active (running) since Tue 2018-10-02 10:28:05 CEST; 2s ago
+     Docs: man:systemd-rc-local-generator(8)
+  Process: 30935 ExecStart=/etc/rc.local start (code=exited, status=0/SUCCESS)
+    Tasks: 12 (limit: 4915)
+   CGroup: /system.slice/rc-local.service
+           └─30940 node /usr/local/bin/pomodone-monitor https://zapier.com/engine/rss/your-id/your-feed-url-here
+```
